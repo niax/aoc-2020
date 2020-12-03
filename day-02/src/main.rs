@@ -1,5 +1,5 @@
-use std::str::FromStr;
 use commons::io::load_file_lines;
+use std::str::FromStr;
 
 #[derive(Debug)]
 struct Line {
@@ -17,13 +17,24 @@ impl FromStr for Line {
         let mut iter = s.split_whitespace();
         let range = iter.next().expect("range");
         let mut range_iter = range.split("-");
-        let min = range_iter.next().expect("min - field").parse().expect("min - parse");
-        let max = range_iter.next().expect("max - field").parse().expect("max - parse");
+        let min = range_iter
+            .next()
+            .expect("min - field")
+            .parse()
+            .expect("min - parse");
+        let max = range_iter
+            .next()
+            .expect("max - field")
+            .parse()
+            .expect("max - parse");
         let letter = iter.next().unwrap().chars().next().unwrap(); // Ewww
         let string = iter.next().unwrap().to_string();
 
         Ok(Line {
-            min, max, letter, string
+            min,
+            max,
+            letter,
+            string,
         })
     }
 }
@@ -36,7 +47,7 @@ fn main() {
         let letter_count = l.string.chars().filter(|c| *c == l.letter).count();
         if letter_count >= l.min && letter_count <= l.max {
             part1 += 1;
-        } 
+        }
         let first = l.string.chars().nth(l.min - 1);
         let second = l.string.chars().nth(l.max - 1);
         let part2_valid = match (first, second) {

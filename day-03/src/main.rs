@@ -1,10 +1,10 @@
-use std::str::FromStr;
 use commons::io::load_file_lines;
+use std::str::FromStr;
 
 #[derive(Debug)]
 enum Cell {
     Tree,
-    Clear
+    Clear,
 }
 
 #[derive(Debug)]
@@ -16,13 +16,13 @@ impl FromStr for Row {
     type Err = ();
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
-        let cells : Vec<Cell> = input.to_string().chars()
-            .map(|c| {
-                match c {
-                    '.' => Cell::Clear,
-                    '#' => Cell::Tree,
-                    _ => panic!("I don't know what this is"),
-                }
+        let cells: Vec<Cell> = input
+            .to_string()
+            .chars()
+            .map(|c| match c {
+                '.' => Cell::Clear,
+                '#' => Cell::Tree,
+                _ => panic!("I don't know what this is"),
             })
             .collect();
         Ok(Row { cells })
@@ -72,13 +72,9 @@ fn main() {
     let part1 = grid.trees_hit((3, 1));
     println!("{}", part1);
 
-    let part2_parts = vec![
-        (1, 1),
-        (5, 1),
-        (7, 1),
-        (1, 2),
-    ];
-    let part2 = part2_parts.iter()
+    let part2_parts = vec![(1, 1), (5, 1), (7, 1), (1, 2)];
+    let part2 = part2_parts
+        .iter()
         .map(|stride| grid.trees_hit(*stride))
         .fold(1, |a, b| a * b);
     // Part 2's parts include part 1, but we intentionally don't do it

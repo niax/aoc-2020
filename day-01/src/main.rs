@@ -1,6 +1,5 @@
 use commons::io::load_file_lines;
 
-
 fn sum_to_target(ints: &[u32], target: u32) -> Option<(u32, u32)> {
     let mut lower_idx = 0;
     let mut upper_idx = ints.len() - 1;
@@ -38,7 +37,7 @@ fn main() {
         let remain = &ints[i..];
         let part_target = target - c;
         if let Some((a, b)) = sum_to_target(remain, part_target) {
-            println!("{} * {} * {} = {}", c, a, b, c*a*b);
+            println!("{} * {} * {} = {}", c, a, b, c * a * b);
         }
     }
 }
