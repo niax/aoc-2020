@@ -1,4 +1,4 @@
-use commons::io::load_file_lines;
+use commons::io::{load_file_lines, FromLines};
 use std::str::FromStr;
 
 #[derive(Debug)]
@@ -63,6 +63,18 @@ impl Grid {
             pos = (pos.0 + stride.0, pos.1 + stride.1)
         }
         tree_count
+    }
+}
+
+impl FromLines for Grid {
+    type Line = Row;
+
+    fn from_lines<I>(lines: &mut I) -> Self
+    where
+        I: Iterator<Item = Self::Line>,
+    {
+        let rows = lines.collect();
+        Grid::new(rows)
     }
 }
 
