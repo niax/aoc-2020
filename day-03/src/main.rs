@@ -1,4 +1,4 @@
-use commons::io::{load_file_lines, FromLines};
+use commons::io::{load_file, FromLines};
 use std::str::FromStr;
 
 #[derive(Debug)]
@@ -79,7 +79,7 @@ impl FromLines for Grid {
 }
 
 fn main() {
-    let grid = Grid::new(load_file_lines("input.txt"));
+    let grid = load_file::<Grid>("input.txt");
 
     let part1 = grid.trees_hit((3, 1));
     println!("{}", part1);
