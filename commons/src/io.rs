@@ -1,11 +1,9 @@
-
 use std::fmt::Debug;
 use std::fs::File;
 use std::io::prelude::*;
 use std::str::FromStr;
 
-pub trait FromLines
-{
+pub trait FromLines {
     type Line: FromStr;
 
     fn parse_lines(input: &String) -> Self
@@ -13,12 +11,10 @@ pub trait FromLines
         Self: Sized,
         <<Self as FromLines>::Line as FromStr>::Err: Debug,
     {
-        let mut line_iterator = input
-            .lines()
-            .map(|l| match Self::Line::from_str(l) {
-                Ok(i) => i,
-                Err(e) => panic!("Couldn't parse '{}' => {:?}", l, e),
-            });
+        let mut line_iterator = input.lines().map(|l| match Self::Line::from_str(l) {
+            Ok(i) => i,
+            Err(e) => panic!("Couldn't parse '{}' => {:?}", l, e),
+        });
         Self::from_lines(&mut line_iterator)
     }
 
@@ -33,7 +29,7 @@ impl<T: FromStr> FromLines for Vec<T> {
 
     fn from_lines<I>(lines: &mut I) -> Self
     where
-        I: Iterator<Item = T>
+        I: Iterator<Item = T>,
     {
         lines.collect()
     }
@@ -67,13 +63,12 @@ where
     T::parse_lines(input)
 }
 
-
 #[cfg(test)]
 mod tests {
     #[test]
     fn items() {
         let input = "1\n2\n3\n4";
         let output = super::parse_lines::<Vec<u32>>(&input.to_string());
-        assert_eq!(vec![1,2,3,4], output);
+        assert_eq!(vec![1, 2, 3, 4], output);
     }
 }
