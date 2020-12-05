@@ -134,7 +134,7 @@ impl FromLines for PassportStore {
             line.split_whitespace().for_each(|f| {
                 let mut field_iter = f.split(":");
                 let key = field_iter.next().unwrap();
-                let value = field_iter.next().unwrap().to_string();
+                let value = field_iter.next().unwrap();
                 match key {
                     "byr" => {
                         current.birth_year(value.parse().unwrap());
