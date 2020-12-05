@@ -119,6 +119,7 @@ mod tests {
             let seat: SeatLocator = case.input.parse().unwrap();
             assert_eq!(case.row, seat.row);
             assert_eq!(case.column, seat.column);
+            assert_eq!(case.seat_id, seat.seat_id());
         }
     }
 }
