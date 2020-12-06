@@ -1,17 +1,18 @@
 use std::fmt::Debug;
 use std::fs::File;
 use std::io::prelude::*;
+use std::io::BufReader;
 use std::str::FromStr;
 
 pub trait FromLines {
     type Line: FromStr;
 
-    fn parse_lines(input: &String) -> Self
+    fn parse_lines(input: impl Iterator<Item = String>) -> Self
     where
         Self: Sized,
         <<Self as FromLines>::Line as FromStr>::Err: Debug,
     {
-        let mut line_iterator = input.lines().map(|l| match Self::Line::from_str(l) {
+        let mut line_iterator = input.map(|l| match Self::Line::from_str(l.as_str()) {
             Ok(i) => i,
             Err(e) => panic!("Couldn't parse '{}' => {:?}", l, e),
         });
@@ -48,14 +49,12 @@ where
     T: FromLines,
     <<T as FromLines>::Line as FromStr>::Err: Debug,
 {
-    let mut file = File::open(path).expect("Could not open input file");
-    let mut content = String::new();
-    file.read_to_string(&mut content)
-        .expect("Could not read input file");
-    parse_lines(&content)
+    let file = File::open(path).expect("Could not open input file");
+    let reader = BufReader::new(file);
+    parse_lines(reader.lines().map(|res| res.unwrap()))
 }
 
-pub fn parse_lines<T>(input: &String) -> T
+pub fn parse_lines<T>(input: impl Iterator<Item = String>) -> T
 where
     T: FromLines,
     <<T as FromLines>::Line as FromStr>::Err: Debug,
