@@ -1,5 +1,6 @@
 use commons::io::load_file_lines;
 use std::cmp::Ordering;
+use std::convert::Infallible;
 use std::str::FromStr;
 
 #[derive(Debug, Eq, Copy, Clone)]
@@ -38,7 +39,7 @@ impl PartialEq for SeatLocator {
 }
 
 impl FromStr for SeatLocator {
-    type Err = ();
+    type Err = Infallible;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         let mut pos: u16 = 0;
@@ -59,7 +60,7 @@ impl FromStr for SeatLocator {
 }
 
 fn main() {
-    let mut seats: Vec<SeatLocator> = load_file_lines("input.txt");
+    let mut seats: Vec<SeatLocator> = load_file_lines("input.txt").map(|r| r.unwrap()).collect();
     seats.sort();
 
     let max_seat = seats[seats.len() - 1];

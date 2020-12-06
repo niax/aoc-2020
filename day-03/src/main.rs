@@ -1,5 +1,6 @@
-use commons::io::{load_file, FromLines};
+use commons::io::load_file_lines;
 use std::str::FromStr;
+use thiserror::Error;
 
 #[derive(Debug)]
 enum Cell {
@@ -12,19 +13,26 @@ struct Row {
     cells: Vec<Cell>,
 }
 
+#[derive(Error, Debug)]
+pub enum RowParseError {
+    #[error("Unknown character '{0}'")]
+    BadChar(char),
+}
+
 impl FromStr for Row {
-    type Err = ();
+    type Err = RowParseError;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
-        let cells: Vec<Cell> = input
-            .to_string()
-            .chars()
-            .map(|c| match c {
-                '.' => Cell::Clear,
-                '#' => Cell::Tree,
-                _ => panic!("I don't know what this is"),
-            })
-            .collect();
+        let mut cells: Vec<Cell> = Vec::new();
+
+        for c in input.to_string().chars() {
+            let cell = match c {
+                '.' => Ok(Cell::Clear),
+                '#' => Ok(Cell::Tree),
+                _ => Err(RowParseError::BadChar(c)),
+            }?;
+            cells.push(cell)
+        }
         Ok(Row { cells })
     }
 }
@@ -41,6 +49,16 @@ impl Grid {
             rows: rows,
             width: width,
         }
+    }
+
+    pub fn from_iter<E>(it: impl Iterator<Item = Result<Row, E>>) -> Result<Grid, E> {
+        let mut rows = Vec::new();
+        for res in it {
+            let row = res?;
+            rows.push(row);
+        }
+
+        Ok(Grid::new(rows))
     }
 
     pub fn height(&self) -> usize {
@@ -66,20 +84,9 @@ impl Grid {
     }
 }
 
-impl FromLines for Grid {
-    type Line = Row;
-
-    fn from_lines<I>(lines: &mut I) -> Self
-    where
-        I: Iterator<Item = Self::Line>,
-    {
-        let rows = lines.collect();
-        Grid::new(rows)
-    }
-}
-
 fn main() {
-    let grid = load_file::<Grid>("input.txt");
+    let row_iter = load_file_lines::<Row>("input.txt");
+    let grid = Grid::from_iter(row_iter).unwrap();
 
     let part1 = grid.trees_hit((3, 1));
     println!("{}", part1);

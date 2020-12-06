@@ -1,36 +1,51 @@
 use commons::io::load_file_lines;
+use std::num::ParseIntError;
 use std::str::FromStr;
+use thiserror::Error;
 
 #[derive(Debug)]
-struct Line {
+struct Password {
     min: usize,
     max: usize,
     letter: char,
     string: String,
 }
 
-impl FromStr for Line {
-    type Err = ();
+#[derive(Error, Debug)]
+enum PasswordParseError {
+    #[error("Could not find a field - {0}")]
+    MissingField(&'static str),
+    #[error("Could not parse an integer - {0:?}")]
+    BadData(#[from] ParseIntError),
+}
+
+impl FromStr for Password {
+    type Err = PasswordParseError;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         let s = input.to_string();
         let mut iter = s.split_whitespace();
-        let range = iter.next().expect("range");
+        let range = iter
+            .next()
+            .ok_or(PasswordParseError::MissingField("Range"))?;
         let mut range_iter = range.split("-");
         let min = range_iter
             .next()
-            .expect("min - field")
-            .parse()
-            .expect("min - parse");
+            .ok_or(PasswordParseError::MissingField("Range min"))?
+            .parse()?;
         let max = range_iter
             .next()
-            .expect("max - field")
-            .parse()
-            .expect("max - parse");
-        let letter = iter.next().unwrap().chars().next().unwrap(); // Ewww
+            .ok_or(PasswordParseError::MissingField("Range max"))?
+            .parse()?;
+        let letter = iter
+            .next()
+            .ok_or(PasswordParseError::MissingField("Letter"))?
+            .chars()
+            .next()
+            .ok_or(PasswordParseError::MissingField("Letter"))?;
         let string = iter.next().unwrap().to_string();
 
-        Ok(Line {
+        Ok(Password {
             min,
             max,
             letter,
@@ -40,10 +55,11 @@ impl FromStr for Line {
 }
 
 fn main() {
-    let lines: Vec<Line> = load_file_lines("input.txt");
     let mut part1 = 0;
     let mut part2 = 0;
-    for l in lines {
+    for res in load_file_lines::<Password>("input.txt") {
+        let l = res.unwrap();
+
         let letter_count = l.string.chars().filter(|c| *c == l.letter).count();
         if letter_count >= l.min && letter_count <= l.max {
             part1 += 1;

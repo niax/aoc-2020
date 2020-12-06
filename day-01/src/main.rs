@@ -23,7 +23,9 @@ fn sum_to_target(ints: &[u32], target: u32) -> Option<(u32, u32)> {
 
 fn main() {
     let target = 2020;
-    let mut ints: Vec<u32> = load_file_lines("input.txt");
+    let mut ints: Vec<u32> = load_file_lines("input.txt")
+        .map(|res| res.unwrap())
+        .collect();
     ints.sort();
     // Part 1
     let part1 = sum_to_target(&ints[..], 2020);

@@ -1,6 +1,7 @@
-use commons::io::{load_file, FromLines};
+use commons::io::{load_file_records, ParseLinesError};
 use derive_builder::Builder;
 use lazy_static::lazy_static;
+use std::convert::Infallible;
 use std::str::FromStr;
 
 #[derive(Debug, Clone)]
@@ -103,6 +104,46 @@ impl Passport {
             && self.valid_eye_colour()
             && self.valid_passport_id()
     }
+
+    fn from_iter<'a>(it: &mut impl Iterator<Item = &'a String>) -> Result<Passport, String> {
+        let mut builder = PassportBuilder::default();
+        for line in it {
+            // Pull out the fields, put them in the builder
+            line.split_whitespace().for_each(|f| {
+                let mut field_iter = f.split(":");
+                let key = field_iter.next().unwrap();
+                let value = field_iter.next().unwrap();
+                match key {
+                    "byr" => {
+                        builder.birth_year(value.parse().unwrap());
+                    }
+                    "iyr" => {
+                        builder.issue_year(value.parse().unwrap());
+                    }
+                    "eyr" => {
+                        builder.expiration_year(value.parse().unwrap());
+                    }
+                    "hgt" => {
+                        builder.height(value.parse().unwrap());
+                    }
+                    "hcl" => {
+                        builder.hair_colour(value.to_string());
+                    }
+                    "ecl" => {
+                        builder.eye_colour(value.to_string());
+                    }
+                    "pid" => {
+                        builder.passport_id(value.to_string());
+                    }
+                    "cid" => {
+                        builder.country_id(value.to_string());
+                    }
+                    _ => panic!(format!("I don't know this field: '{}'", key)),
+                }
+            });
+        }
+        builder.build()
+    }
 }
 
 #[derive(Debug)]
@@ -110,73 +151,25 @@ struct PassportStore {
     passports: Vec<Passport>,
 }
 
-impl FromLines for PassportStore {
-    type Line = String;
-
-    fn from_lines<I>(lines: &mut I) -> Self
-    where
-        I: Iterator<Item = Self::Line>,
-    {
+impl PassportStore {
+    fn from_iter(
+        it: &mut impl Iterator<Item = Result<Vec<String>, ParseLinesError<Infallible>>>,
+    ) -> Result<PassportStore, ParseLinesError<Infallible>> {
         let mut passports = Vec::new();
-        let mut current = PassportBuilder::default();
-        for line in lines {
-            if line.len() == 0 {
-                match current.build() {
-                    Ok(passport) => {
-                        passports.push(passport);
-                    }
-                    Err(_) => {}
-                }
-                current = PassportBuilder::default();
-                continue;
-            }
-            // Pull out the fields, put them in the current passport
-            line.split_whitespace().for_each(|f| {
-                let mut field_iter = f.split(":");
-                let key = field_iter.next().unwrap();
-                let value = field_iter.next().unwrap();
-                match key {
-                    "byr" => {
-                        current.birth_year(value.parse().unwrap());
-                    }
-                    "iyr" => {
-                        current.issue_year(value.parse().unwrap());
-                    }
-                    "eyr" => {
-                        current.expiration_year(value.parse().unwrap());
-                    }
-                    "hgt" => {
-                        current.height(value.parse().unwrap());
-                    }
-                    "hcl" => {
-                        current.hair_colour(value.to_string());
-                    }
-                    "ecl" => {
-                        current.eye_colour(value.to_string());
-                    }
-                    "pid" => {
-                        current.passport_id(value.to_string());
-                    }
-                    "cid" => {
-                        current.country_id(value.to_string());
-                    }
-                    _ => panic!(format!("I don't know this field: '{}'", key)),
-                }
-            });
-        }
-        match current.build() {
-            Ok(passport) => {
+        for record in it {
+            let lines = record?;
+            if let Ok(passport) = Passport::from_iter(&mut lines.iter()) {
                 passports.push(passport);
             }
-            Err(_) => {}
         }
 
-        PassportStore { passports }
+        return Ok(PassportStore { passports });
     }
 }
 
 fn main() {
-    let store = load_file::<PassportStore>("input.txt");
+    let mut record_iter = load_file_records("input.txt", "");
+    let store = PassportStore::from_iter(&mut record_iter).expect("Failed to load passport store");
 
     println!("{}", store.passports.len());
 
