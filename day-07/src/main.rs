@@ -1,10 +1,9 @@
 use commons::io::load_file_lines;
-use std::cmp::Ordering;
-use petgraph::graph::{Graph};
+use petgraph::graph::Graph;
 use petgraph::prelude::*;
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::cmp::Ordering;
 use std::collections::hash_map::Entry;
-
+use std::collections::{HashMap, HashSet, VecDeque};
 
 #[derive(Debug, Clone, Ord, Hash, Eq)]
 struct BagDescriptor {
@@ -14,17 +13,19 @@ struct BagDescriptor {
 
 impl PartialOrd for BagDescriptor {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.adjective.cmp(&other.adjective).then(self.colour.cmp(&other.colour)))
+        Some(
+            self.adjective
+                .cmp(&other.adjective)
+                .then(self.colour.cmp(&other.colour)),
+        )
     }
 }
 
 impl PartialEq for BagDescriptor {
     fn eq(&self, other: &Self) -> bool {
-        self.adjective == other.adjective &&
-            self.colour == other.colour
+        self.adjective == other.adjective && self.colour == other.colour
     }
 }
-
 
 impl BagDescriptor {
     fn from_iter<'a>(it: &mut impl Iterator<Item = &'a str>) -> BagDescriptor {
@@ -32,9 +33,7 @@ impl BagDescriptor {
         let colour = it.next().unwrap().to_string();
         it.next().unwrap(); // bags
 
-        BagDescriptor {
-            adjective, colour,
-        }
+        BagDescriptor { adjective, colour }
     }
 }
 
@@ -58,12 +57,19 @@ impl BagGraph {
         }
     }
 
-    pub fn add_edge<'a>(&mut self, parent: &'a BagDescriptor, child: &'a BagDescriptor, count: usize) {
+    pub fn add_edge<'a>(
+        &mut self,
+        parent: &'a BagDescriptor,
+        child: &'a BagDescriptor,
+        count: usize,
+    ) {
         let parent_id = self.add_node(parent);
         let child_id = self.add_node(child);
         match self.graph.find_edge(child_id, parent_id) {
             Some(edge_idx) => *self.graph.edge_weight_mut(edge_idx).unwrap() += count,
-            None => { self.graph.add_edge(child_id, parent_id, count); },
+            None => {
+                self.graph.add_edge(child_id, parent_id, count);
+            }
         }
     }
 
@@ -89,7 +95,10 @@ impl BagGraph {
         let mut bag_count = 1;
 
         let node_idx = self.id_map.get(target).unwrap();
-        for neighbour in self.graph.neighbors_directed(*node_idx, Direction::Incoming) {
+        for neighbour in self
+            .graph
+            .neighbors_directed(*node_idx, Direction::Incoming)
+        {
             let neigh_desc = &self.graph[neighbour];
             let edge_idx = self.graph.find_edge(neighbour, *node_idx).unwrap();
             let edge_bag_count = self.graph[edge_idx];
@@ -101,7 +110,6 @@ impl BagGraph {
         bag_count
     }
 }
-
 
 fn main() {
     let gold_bag = BagDescriptor {
