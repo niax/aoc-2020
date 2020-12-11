@@ -200,7 +200,6 @@ where
 {
     let mut plan = in_plan.clone();
     loop {
-        println!("{}", plan);
         let new_plan = step(&plan);
         if new_plan == plan {
             break;
