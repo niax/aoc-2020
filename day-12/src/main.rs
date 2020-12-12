@@ -1,3 +1,4 @@
+use commons::geom::Point;
 use commons::io::load_file_lines;
 use std::str::FromStr;
 use thiserror::Error;
@@ -41,18 +42,26 @@ impl FromStr for Instruction {
 
 #[derive(Debug)]
 struct Ship {
-    x: i32,
-    y: i32,
+    position: Point<i32>,
+    waypoint: Point<i32>,
     direction: i32,
 }
 
 impl Ship {
     pub fn new() -> Ship {
         Ship {
-            x: 0,
-            y: 0,
+            position: Point::origin(),
+            waypoint: Point::new(10, 1),
             direction: 90,
         }
+    }
+
+    pub fn x(&self) -> &i32 {
+        self.position.x()
+    }
+
+    pub fn y(&self) -> &i32 {
+        self.position.y()
     }
 
     fn update_dir(&mut self, dir: i32) {
@@ -64,8 +73,8 @@ impl Ship {
         }
     }
 
-    pub fn step(&mut self, ins: Instruction) {
-        let dir = match ins {
+    pub fn step(&mut self, ins: &Instruction) {
+        let dir = match *ins {
             Instruction::North(arg) => (0, arg as i32),
             Instruction::South(arg) => (0, -(arg as i32)),
             Instruction::East(arg) => (arg as i32, 0),
@@ -89,19 +98,50 @@ impl Ship {
                 (0, 0)
             }
         };
-        self.x += dir.0;
-        self.y += dir.1;
+        self.position += dir;
+    }
+
+    pub fn step_waypoint(&mut self, ins: &Instruction) {
+        self.waypoint = match *ins {
+            Instruction::North(arg) => self.waypoint + (0, arg as i32),
+            Instruction::South(arg) => self.waypoint - (0, arg as i32),
+            Instruction::East(arg) => self.waypoint + (arg as i32, 0),
+            Instruction::West(arg) => self.waypoint - (arg as i32, 0),
+            Instruction::Left(arg) => match arg {
+                0 => self.waypoint,
+                90 => Point::new(-*self.waypoint.y(), *self.waypoint.x()),
+                180 => Point::new(-*self.waypoint.x(), -*self.waypoint.y()),
+                270 => Point::new(*self.waypoint.y(), -*self.waypoint.x()),
+                _ => panic!("Unknown direction: {}", arg),
+            },
+            Instruction::Right(arg) => match arg {
+                0 => self.waypoint,
+                90 => Point::new(*self.waypoint.y(), -*self.waypoint.x()),
+                180 => Point::new(-*self.waypoint.x(), -*self.waypoint.y()),
+                270 => Point::new(-*self.waypoint.y(), *self.waypoint.x()),
+                _ => panic!("Unknown direction: {}", arg),
+            },
+            _ => self.waypoint,
+        };
+        self.position += match *ins {
+            Instruction::Forward(arg) => (
+                self.waypoint.x() * arg as i32,
+                self.waypoint.y() * arg as i32,
+            ),
+            _ => (0, 0),
+        };
     }
 }
 
 fn main() {
     let input =
         load_file_lines::<Instruction>("input.txt").map(|res| res.expect("Failed to load input"));
-    let mut ship = Ship::new();
+    let mut part1 = Ship::new();
+    let mut part2 = Ship::new();
     for i in input {
-        println!("{:?}", i);
-        ship.step(i);
-        println!("{:?}", ship);
+        part1.step(&i);
+        part2.step_waypoint(&i);
     }
-    println!("{}", ship.x.abs() + ship.y.abs());
+    println!("{}", part1.x().abs() + part1.y().abs());
+    println!("{}", part2.x().abs() + part2.y().abs());
 }
