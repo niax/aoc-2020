@@ -15,4 +15,29 @@ fn main() {
             }
         }
     }
+
+    let mut t: u128 = 0;
+    loop {
+        let mut found = true;
+        let mut incr = 1;
+        for (i, opt_id) in bus_ids.iter().enumerate() {
+            if let Some(id) = opt_id {
+                let bus_ts = t + i as u128;
+                if bus_ts % (*id as u128) != 0 {
+                    found = false;
+                    break;
+                } else {
+                    // The next common place will be at least the multiple of all the currently
+                    // matching IDs, there aren't any places sooner where the multiples align.
+                    incr *= *id as u128
+                }
+            }
+        }
+
+        if found {
+            println!("{}", t);
+            break;
+        }
+        t += incr;
+    }
 }
