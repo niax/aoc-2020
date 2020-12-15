@@ -57,7 +57,6 @@ fn main() {
             .entry(next_number)
             .or_insert(MostRecent::new(2));
         idxs.push(i);
-        //println!("Iteration {}: {} was the previous number {} is the next - {:?}", i + 1, last_number, next_number, last_occurance);
         last_number = next_number;
         if i == 2019 {
             println!("{}", last_number);
