@@ -10,3 +10,4 @@ edition = "2018"
 commons = { path = "../commons" }
 thiserror = "1.0.22"
 bitvec = "0.19.4"
+itertools = "0.9.0"
