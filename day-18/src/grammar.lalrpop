@@ -1,0 +1,17 @@
+use std::str::FromStr;
+use crate::types::Expr;
+
+grammar;
+
+Num: Expr = <s: r"[0-9]+"> => Expr::Number(i64::from_str(s).unwrap());
+
+pub NumOrParen: Expr = {
+    "(" <e:Expression> ")" => e,
+    <n: Num> => n,
+}
+
+pub Expression: Expr = {
+    <l: Expression> " * " <r: NumOrParen> => Expr::Mul(Box::new(l), Box::new(r)),
+    <l: Expression> " + " <r: NumOrParen> => Expr::Add(Box::new(l), Box::new(r)),
+    <e:NumOrParen> => e,
+}
