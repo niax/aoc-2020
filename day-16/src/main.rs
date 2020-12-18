@@ -46,13 +46,13 @@ impl Input {
                 // End of the rules block
                 break;
             }
-            let mut parts = i.split(":");
+            let mut parts = i.split(':');
             let category = parts.next().unwrap();
             let range_strings = parts.next().unwrap().split_whitespace();
             let mut rule_ranges = BitRanges::new(1024);
             for p in range_strings {
-                if p.contains("-") {
-                    let range_parts = p.split("-").collect::<Vec<&str>>();
+                if p.contains('-') {
+                    let range_parts = p.split('-').collect::<Vec<&str>>();
                     let from: u16 = range_parts[0].parse().unwrap();
                     let to: u16 = range_parts[1].parse().unwrap();
                     rule_ranges.add_inclusive(from, to);
@@ -67,15 +67,15 @@ impl Input {
             if i.is_empty() {
                 // End of the ticket block
                 break;
-            } else if i.contains(",") {
-                our_ticket = i.split(",").map(|s| s.parse().unwrap()).collect();
+            } else if i.contains(',') {
+                our_ticket = i.split(',').map(|s| s.parse().unwrap()).collect();
             }
         }
 
         let mut nearby_tickets: Vec<Vec<u16>> = Vec::new();
         for i in &mut input {
-            if i.contains(",") {
-                nearby_tickets.push(i.split(",").map(|s| s.parse().unwrap()).collect());
+            if i.contains(',') {
+                nearby_tickets.push(i.split(',').map(|s| s.parse().unwrap()).collect());
             }
         }
 
@@ -135,7 +135,6 @@ impl Input {
                 .collect();
             possible_field_names.push(possibles);
         }
-        println!("{:?}", possible_field_names);
 
         let mut field_names = HashMap::new();
         for (i, possible_names) in possible_field_names
@@ -153,8 +152,6 @@ impl Input {
                 println!("Ambigious: {:?}", real_possibles);
             }
         }
-
-        println!("{:?}", field_names);
 
         field_names
             .iter()

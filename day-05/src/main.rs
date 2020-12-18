@@ -45,7 +45,7 @@ impl FromStr for SeatLocator {
         let mut pos: u16 = 0;
 
         for c in input.chars() {
-            pos = pos << 1;
+            pos <<= 1;
             pos += match c {
                 'B' | 'R' => 1,
                 _ => 0,

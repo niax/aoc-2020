@@ -1,4 +1,5 @@
 use commons::io::load_file_lines;
+use std::cmp::Ordering;
 
 fn sum_to_target(ints: &[u32], target: u32) -> Option<(u32, u32)> {
     let mut lower_idx = 0;
@@ -8,14 +9,18 @@ fn sum_to_target(ints: &[u32], target: u32) -> Option<(u32, u32)> {
         let upper = ints[upper_idx];
 
         let sum = lower + upper;
-        if sum == target {
-            return Some((lower, upper));
-        } else if sum < target {
-            // Move the lower bound up to make bigger numbers
-            lower_idx += 1;
-        } else {
-            // Move the upper bound down to make smaller numbers
-            upper_idx -= 1;
+        match sum.cmp(&target) {
+            Ordering::Equal => {
+                return Some((lower, upper));
+            }
+            Ordering::Less => {
+                // Move the lower bound up to make bigger numbers
+                lower_idx += 1;
+            }
+            Ordering::Greater => {
+                // Move the upper bound down to make smaller numbers
+                upper_idx -= 1;
+            }
         }
     }
     None
@@ -26,7 +31,7 @@ fn main() {
     let mut ints: Vec<u32> = load_file_lines("input.txt")
         .map(|res| res.unwrap())
         .collect();
-    ints.sort();
+    ints.sort_unstable();
     // Part 1
     let part1 = sum_to_target(&ints[..], 2020);
     match part1 {

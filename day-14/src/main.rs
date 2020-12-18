@@ -13,13 +13,13 @@ enum Action {
 #[derive(Error, Debug)]
 enum ParseError {
     #[error("Bad mask!")]
-    BadAction,
+    Action,
     #[error("Bad mask!")]
-    BadMask,
+    Mask,
     #[error("Bad cell!")]
-    BadCell,
+    Cell,
     #[error("Bad value!")]
-    BadValue,
+    Value,
 }
 
 impl FromStr for Action {
@@ -45,7 +45,7 @@ impl FromStr for Action {
                     'X' => {
                         float_bits |= bitmask;
                     }
-                    _ => return Err(ParseError::BadMask),
+                    _ => return Err(ParseError::Mask),
                 }
             }
             Ok(Action::SetMask(set_bits, clear_bits, float_bits))
@@ -55,16 +55,16 @@ impl FromStr for Action {
                 .skip(4)
                 .take_while(|c| c.is_numeric())
                 .collect();
-            let cell_num = cell_num_str.parse().map_err(|_| ParseError::BadCell)?;
-            let value = parts[2].parse().map_err(|_| ParseError::BadValue)?;
+            let cell_num = cell_num_str.parse().map_err(|_| ParseError::Cell)?;
+            let value = parts[2].parse().map_err(|_| ParseError::Value)?;
             Ok(Action::SetValue(cell_num, value))
         } else {
-            Err(ParseError::BadAction)
+            Err(ParseError::Action)
         }
     }
 }
 
-fn run_part1(input: &Vec<Action>) -> HashMap<usize, u64> {
+fn run_part1(input: &[Action]) -> HashMap<usize, u64> {
     let mut set_bits = 0;
     let mut clear_bits = 0;
     let mut memory: HashMap<usize, u64> = HashMap::new();
@@ -85,7 +85,7 @@ fn run_part1(input: &Vec<Action>) -> HashMap<usize, u64> {
     memory
 }
 
-fn run_part2(input: &Vec<Action>) -> HashMap<usize, u64> {
+fn run_part2(input: &[Action]) -> HashMap<usize, u64> {
     let mut set_bits = 0;
     let mut floating_bits = 0;
     let mut memory: HashMap<usize, u64> = HashMap::new();
@@ -123,7 +123,7 @@ fn run_part2(input: &Vec<Action>) -> HashMap<usize, u64> {
 }
 
 fn main() {
-    let input = load_file_lines("input.txt")
+    let input: Vec<Action> = load_file_lines("input.txt")
         .map(|res| res.expect("Failed to read input"))
         .collect();
 

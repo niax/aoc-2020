@@ -74,7 +74,7 @@ where
     pub fn step(&self) -> Self {
         let mut new_grid = Grid::<T>::new();
         let mut seen = HashSet::new();
-        let mut queue: VecDeque<T> = self.in_use.iter().map(|x| *x).collect();
+        let mut queue: VecDeque<T> = self.in_use.iter().copied().collect();
         while let Some(point) = queue.pop_front() {
             if seen.contains(&point) {
                 continue;

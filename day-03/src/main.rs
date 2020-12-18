@@ -45,10 +45,7 @@ struct Grid {
 impl Grid {
     pub fn new(rows: Vec<Row>) -> Grid {
         let width = rows[0].cells.len();
-        Grid {
-            rows: rows,
-            width: width,
-        }
+        Grid { rows, width }
     }
 
     pub fn from_iter<E>(it: impl Iterator<Item = Result<Row, E>>) -> Result<Grid, E> {
@@ -95,7 +92,7 @@ fn main() {
     let part2 = part2_parts
         .iter()
         .map(|stride| grid.trees_hit(*stride))
-        .fold(1, |a, b| a * b);
+        .product::<u32>();
     // Part 2's parts include part 1, but we intentionally don't do it
     // again. Instead, we multiply it here.
     println!("{}", part1 * part2);

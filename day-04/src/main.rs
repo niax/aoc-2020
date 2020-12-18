@@ -110,7 +110,7 @@ impl Passport {
         for line in it {
             // Pull out the fields, put them in the builder
             line.split_whitespace().for_each(|f| {
-                let mut field_iter = f.split(":");
+                let mut field_iter = f.split(':');
                 let key = field_iter.next().unwrap();
                 let value = field_iter.next().unwrap();
                 match key {
@@ -163,7 +163,7 @@ impl PassportStore {
             }
         }
 
-        return Ok(PassportStore { passports });
+        Ok(PassportStore { passports })
     }
 }
 

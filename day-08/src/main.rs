@@ -52,6 +52,7 @@ struct Machine<'a> {
 }
 
 impl<'a> Machine<'a> {
+    #[allow(clippy::ptr_arg)]
     pub fn from_instructions(instructions: &'a Vec<Instruction>) -> Machine<'a> {
         Machine {
             pc: 0,

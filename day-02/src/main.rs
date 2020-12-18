@@ -28,7 +28,7 @@ impl FromStr for Password {
         let range = iter
             .next()
             .ok_or(PasswordParseError::MissingField("Range"))?;
-        let mut range_iter = range.split("-");
+        let mut range_iter = range.split('-');
         let min = range_iter
             .next()
             .ok_or(PasswordParseError::MissingField("Range min"))?

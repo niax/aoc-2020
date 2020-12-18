@@ -1,9 +1,7 @@
 use commons::io::load_file_lines;
 use itertools::Itertools;
-use petgraph::algo::all_simple_paths;
 use petgraph::graphmap::GraphMap;
 use petgraph::{Directed, Direction};
-use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 
 fn main() {

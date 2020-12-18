@@ -1,5 +1,6 @@
 use commons::io::load_file_lines;
 use itertools::Itertools;
+use std::cmp::Ordering;
 use std::collections::VecDeque;
 
 #[derive(Debug)]
@@ -57,14 +58,18 @@ fn main() {
         let mut larger = current_sorted.pop_back();
         while smaller.is_some() && larger.is_some() {
             let sum = smaller.unwrap() + larger.unwrap();
-            if sum == i {
-                break;
-            } else if sum > i {
-                // Too big, try a smaller larger number
-                larger = current_sorted.pop_back();
-            } else {
-                // Too small, try a larger smaller number
-                smaller = current_sorted.pop_front();
+            match sum.cmp(&i) {
+                Ordering::Equal => {
+                    break;
+                }
+                Ordering::Greater => {
+                    // Too big, try a smaller larger number
+                    larger = current_sorted.pop_back();
+                }
+                Ordering::Less => {
+                    // Too small, try a larger smaller number
+                    smaller = current_sorted.pop_front();
+                }
             }
         }
 

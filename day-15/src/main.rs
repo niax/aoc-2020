@@ -35,9 +35,9 @@ struct RecencyMap<K, V> {
     n: usize,
 }
 
-impl <K, V> RecencyMap<K, V>
+impl<K, V> RecencyMap<K, V>
 where
-    K: Eq + Hash + Copy
+    K: Eq + Hash + Copy,
 {
     pub fn new(n: usize) -> RecencyMap<K, V> {
         RecencyMap {
@@ -47,7 +47,8 @@ where
     }
 
     fn get_key(&mut self, key: &K) -> &mut MostRecent<V> {
-        self.map.entry(*key).or_insert(MostRecent::new(self.n))
+        let n = self.n;
+        self.map.entry(*key).or_insert_with(|| MostRecent::new(n))
     }
 
     pub fn insert(&mut self, key: K, value: V) {
@@ -64,7 +65,7 @@ fn main() {
         .map(|res| res.unwrap())
         .collect();
     let input: Vec<u32> = lines[0]
-        .split(",")
+        .split(',')
         .map(|res| res.parse().unwrap())
         .collect();
 
@@ -76,7 +77,10 @@ fn main() {
     }
 
     for i in input.len()..30000000 {
-        let next_number = match (last_occurance.get(&last_number, 0), last_occurance.get(&last_number, 1)) {
+        let next_number = match (
+            last_occurance.get(&last_number, 0),
+            last_occurance.get(&last_number, 1),
+        ) {
             (Some(a), Some(b)) => (a - b) as u32,
             _ => 0,
         };

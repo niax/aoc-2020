@@ -82,7 +82,7 @@ where
                 Err(e) => return Some(Err(ParseLinesError::ParseError(e))),
             }
         }
-        if batch.len() == 0 {
+        if batch.is_empty() {
             None
         } else {
             Some(Ok(batch))

@@ -14,17 +14,13 @@ struct CustomsGroup {
 
 impl CustomsGroup {
     pub fn uniq_answers(&self) -> HashSet<char> {
-        self.yes_answers
-            .iter()
-            .flat_map(|s| s)
-            .map(|c| *c)
-            .collect()
+        self.yes_answers.iter().flatten().copied().collect()
     }
 
     pub fn answer_intersection(&self) -> HashSet<char> {
         let mut intersection = self.yes_answers[0].clone();
         for answers in &self.yes_answers {
-            intersection = intersection.intersection(&answers).map(|c| *c).collect();
+            intersection = intersection.intersection(&answers).copied().collect();
         }
 
         intersection
@@ -46,7 +42,7 @@ impl CustomsGroupStore {
             groups.push(CustomsGroup::from_iter(&mut lines.iter()));
         }
 
-        return Ok(CustomsGroupStore { groups });
+        Ok(CustomsGroupStore { groups })
     }
 }
 
@@ -59,13 +55,13 @@ fn main() {
         .groups
         .iter()
         .map(|group| group.uniq_answers().len())
-        .fold(0, |a, c| a + c);
+        .sum::<usize>();
     println!("{}", yes_count);
 
     let part2 = store
         .groups
         .iter()
         .map(|group| group.answer_intersection().len())
-        .fold(0, |a, c| a + c);
+        .sum::<usize>();
     println!("{}", part2);
 }

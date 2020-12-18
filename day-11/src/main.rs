@@ -187,7 +187,7 @@ impl fmt::Display for SeatPlan {
             for seat in row {
                 write!(f, "{}", seat.char())?;
             }
-            write!(f, "\n")?;
+            writeln!(f)?;
         }
 
         fmt::Result::Ok(())

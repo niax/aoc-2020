@@ -5,7 +5,7 @@ use std::cmp::Ordering;
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet, VecDeque};
 
-#[derive(Debug, Clone, Ord, Hash, Eq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
 struct BagDescriptor {
     adjective: String,
     colour: String,
@@ -21,9 +21,9 @@ impl PartialOrd for BagDescriptor {
     }
 }
 
-impl PartialEq for BagDescriptor {
-    fn eq(&self, other: &Self) -> bool {
-        self.adjective == other.adjective && self.colour == other.colour
+impl Ord for BagDescriptor {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.partial_cmp(other).unwrap()
     }
 }
 
@@ -120,7 +120,7 @@ fn main() {
     let mut graph = BagGraph::new();
     for res in load_file_lines("input.txt") {
         let line: String = res.unwrap();
-        let mut it = line.split(" ").peekable();
+        let mut it = line.split(' ').peekable();
         let src_bag = BagDescriptor::from_iter(&mut it);
         it.next(); // contains
         if it.peek().unwrap() != &"no" {
