@@ -5,13 +5,33 @@ grammar;
 
 Num: Expr = <s: r"[0-9]+"> => Expr::Number(i64::from_str(s).unwrap());
 
-pub NumOrParen: Expr = {
-    "(" <e:Expression> ")" => e,
+pub LtrNumOrParen: Expr = {
+    "(" <e:LtrExpression> ")" => e,
     <n: Num> => n,
 }
 
-pub Expression: Expr = {
-    <l: Expression> " * " <r: NumOrParen> => Expr::Mul(Box::new(l), Box::new(r)),
-    <l: Expression> " + " <r: NumOrParen> => Expr::Add(Box::new(l), Box::new(r)),
-    <e:NumOrParen> => e,
+pub LtrExpression: Expr = {
+    <l: LtrExpression> " * " <r: LtrNumOrParen> => Expr::Mul(Box::new(l), Box::new(r)),
+    <l: LtrExpression> " + " <r: LtrNumOrParen> => Expr::Add(Box::new(l), Box::new(r)),
+    <e: LtrNumOrParen> => e,
+}
+
+
+InfixNumOrParen: Expr = {
+    "(" <e: InfixExpression> ")" => e,
+    Num
+}
+
+InfixAdd: Expr = {
+    <l: InfixNumOrParen> " + " <r: InfixAdd> => Expr::Add(Box::new(l), Box::new(r)),
+    InfixNumOrParen,
+}
+
+InfixMul: Expr = {
+    <l: InfixAdd> " * " <r: InfixExpression> => Expr::Mul(Box::new(l), Box::new(r)),
+    InfixAdd,
+}
+
+pub InfixExpression: Expr = {
+    InfixMul,
 }
