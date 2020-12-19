@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum MatchType {
     References(Vec<u32>),
     Or(Box<MatchType>, Box<MatchType>),
@@ -8,31 +8,51 @@ pub enum MatchType {
 }
 
 impl MatchType {
-    pub fn regex(&self, ruleset: &HashMap<u32, Rule>) -> String {
+    pub fn matches<'a>(&self, ruleset: &HashMap<u32, MatchType>, s: &'a str) -> Vec<&'a str> {
+        if s.is_empty() {
+            return Vec::new();
+        }
+
         match self {
             MatchType::References(l) => {
-                let mut p = String::new();
+                let mut next = Vec::new();
+                next.push(s);
+
                 for id in l {
                     let rule = ruleset.get(&id).unwrap();
-                    p.push_str(rule.regex(ruleset).as_str())
+                    let next_next = next
+                        .iter()
+                        .map(|remain| rule.matches(ruleset, remain))
+                        .filter(|v| !v.is_empty())
+                        .flatten()
+                        .collect();
+                    next = next_next;
                 }
-                p
+
+                next
             }
-            MatchType::Or(a, b) => {
-                let mut p = String::new();
-                p.push('(');
-                p.push_str(a.regex(ruleset).as_str());
-                p.push('|');
-                p.push_str(b.regex(ruleset).as_str());
-                p.push(')');
-                p
+            MatchType::Or(a, b) => a
+                .matches(ruleset, s)
+                .iter()
+                .chain(b.matches(ruleset, s).iter())
+                .copied()
+                .collect(),
+            MatchType::Chars(a) => {
+                if &s[0..a.len()] == a {
+                    vec![&s[a.len()..]]
+                } else {
+                    Vec::new()
+                }
             }
-            MatchType::Chars(a) => a.to_string(),
         }
+    }
+
+    pub fn matches_exact(&self, ruleset: &HashMap<u32, MatchType>, s: &str) -> bool {
+        self.matches(ruleset, s).iter().any(|x| x.is_empty())
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Rule {
     pub id: u32,
     pub matcher: MatchType,
@@ -41,9 +61,5 @@ pub struct Rule {
 impl Rule {
     pub fn new(id: u32, matcher: MatchType) -> Rule {
         Rule { id, matcher }
-    }
-
-    pub fn regex(&self, ruleset: &HashMap<u32, Rule>) -> String {
-        self.matcher.regex(ruleset)
     }
 }
