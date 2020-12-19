@@ -1,0 +1,28 @@
+use std::str::FromStr;
+use crate::types::{MatchType, Rule};
+
+grammar;
+
+Num: u32 = <s: r"[0-9]+"> => u32::from_str(s).unwrap();
+
+Quoted: MatchType = "\"" <s: r"[a-z]"> "\"" => MatchType::Chars(s.to_string());
+
+NumList: Vec<u32> = {
+    <n: (<Num>)*> <last: Num> => n.into_iter().chain(vec![last]).collect()
+}
+
+References: MatchType = {
+    <n: NumList> => MatchType::References(n)
+}
+
+SingleMatch: MatchType = {
+    Quoted,
+    References,
+}
+
+Match: MatchType = {
+    SingleMatch,
+    <a: SingleMatch> " | " <b: Match> => MatchType::Or(Box::new(a), Box::new(b)),
+}
+
+pub Rule: Rule = <id:Num> ": " <m: Match> => Rule::new(id, m);
