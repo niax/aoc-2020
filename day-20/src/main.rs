@@ -184,6 +184,7 @@ fn main() {
 
     while !next_cells.is_empty() {
         let cell = next_cells.pop_front().unwrap();
+        let tile = grid.get(&cell).unwrap().clone();
 
         for dir in &dirs {
             let adj_cell = (cell.0 + dir.0, cell.1 + dir.1);
@@ -201,21 +202,26 @@ fn main() {
                 .map(|(d, o)| (d, o.unwrap().clone()))
                 .collect();
 
-            for other_tile in &tiles {
-                if used_ids.contains(&other_tile.id) {
+            let mut tested_ids = HashSet::new();
+            let edge = tile.normalized_edges()[dir.2].clone();
+            for sibling in edge_owners.get_vec(&edge).unwrap() {
+                if used_ids.contains(&sibling.id) || tested_ids.contains(&sibling.id)  {
                     continue;
                 }
-                for comb in other_tile.combinations() {
+
+                for comb in sibling.combinations() {
                     let fits = adj_to_new
                         .iter()
                         .all(|(dir, adj_tile)| comb.fits_with(adj_tile, **dir));
                     if fits {
                         grid.insert(adj_cell, comb.clone());
                         next_cells.push_back(adj_cell);
-                        used_ids.insert(other_tile.id);
+                        used_ids.insert(sibling.id);
                         break;
                     }
                 }
+
+                tested_ids.insert(sibling.id);
             }
         }
     }
