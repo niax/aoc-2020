@@ -1,6 +1,7 @@
 #![feature(iterator_fold_self)]
 
 use commons::io::load_file_lines;
+use itertools::Itertools;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::str::FromStr;
 use thiserror::Error;
@@ -66,16 +67,10 @@ fn main() {
             .unwrap()
             .iter()
             .map(|item| item.ingredients.clone())
-            .fold_first(|a, c| {
-                a.intersection(&c)
-                    .map(|s| s.to_string())
-                    .collect()
-            })
+            .fold_first(|a, c| a.intersection(&c).map(|s| s.to_string()).collect())
             .unwrap()
             .iter()
-            .filter(|s| {
-                found.values().find(|x| x == s).is_none()
-            })
+            .filter(|s| found.values().find(|x| x == s).is_none())
             .map(|s| s.to_string())
             .collect();
         if possible_ingredients.len() == 1 {
@@ -89,6 +84,20 @@ fn main() {
     }
 
     let identified_ingredients: HashSet<&String> = found.values().collect();
-    let part1: usize = food_items.iter().map(|item| item.ingredients.iter().filter(|i| !identified_ingredients.contains(i)).count()).sum();
+    let part1: usize = food_items
+        .iter()
+        .map(|item| {
+            item.ingredients
+                .iter()
+                .filter(|i| !identified_ingredients.contains(i))
+                .count()
+        })
+        .sum();
     println!("{}", part1);
+
+    let part2 = found
+        .iter()
+        .sorted_by_key(|(k, _)| *k)
+        .fold(String::new(), |a, (_, v)| a + v + ",");
+    println!("{}", part2.trim_end_matches(','));
 }
