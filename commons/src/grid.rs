@@ -114,8 +114,8 @@ impl<T> SparseGrid<T> {
         }
     }
 
-    pub fn set(&mut self, x: isize, y: isize, val: T) {
-        self.cells.insert((x, y), val);
+    pub fn set(&mut self, coord: (isize, isize), val: T) {
+        self.cells.insert(coord, val);
     }
 
     fn key_range<F>(&self, key_fn: F) -> usize
@@ -161,7 +161,7 @@ impl<T> Grid for SparseGrid<T> {
         let mut grid = SparseGrid::new();
         for (y, row) in source.into_iter().enumerate() {
             for (x, val) in row.into_iter().enumerate() {
-                grid.set(x as isize, y as isize, val);
+                grid.set((x as isize, y as isize), val);
             }
         }
         grid
@@ -246,10 +246,10 @@ mod tests {
          * x x 2
          * x x 4
          */
-        grid.set(-1, -1, 0);
-        grid.set(0, 0, 1);
-        grid.set(1, 1, 2);
-        grid.set(1, 2, 4);
+        grid.set((-1, -1), 0);
+        grid.set((0, 0), 1);
+        grid.set((1, 1), 2);
+        grid.set((1, 2), 4);
 
         assert_eq!(grid.width(), 3);
         assert_eq!(grid.height(), 4);

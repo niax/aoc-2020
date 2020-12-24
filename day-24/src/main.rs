@@ -66,13 +66,12 @@ fn main() {
         for dir in line {
             coord += dir.offset();
         }
-        let x = *coord.x();
-        let y = *coord.y();
-        let current = match grid.at(&(x, y)) {
+        let coord_tuple = (*coord.x(), *coord.y());
+        let current = match grid.at(&coord_tuple) {
             Some(a) => *a,
             None => false,
         };
-        grid.set(x, y, !current);
+        grid.set(coord_tuple, !current);
     }
 
     let part1 = grid.points().iter().filter(|(_, v)| **v).count();
@@ -116,7 +115,7 @@ fn main() {
             };
 
             if new_value {
-                next_grid.set(coord.0, coord.1, true);
+                next_grid.set(coord, true);
             }
         }
         grid = next_grid;
