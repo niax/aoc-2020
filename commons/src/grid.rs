@@ -1,8 +1,7 @@
-use itertools::Itertools;
 use std::cmp;
 use std::collections::HashMap;
 
-trait Grid {
+pub trait Grid {
     type Value;
     type Coordinate;
 
