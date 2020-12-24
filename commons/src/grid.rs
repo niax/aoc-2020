@@ -174,6 +174,17 @@ impl<T> Default for SparseGrid<T> {
     }
 }
 
+impl<T> Clone for SparseGrid<T>
+where
+    T: Clone
+{
+    fn clone(&self) -> Self {
+        SparseGrid {
+            cells: self.cells.clone()
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
