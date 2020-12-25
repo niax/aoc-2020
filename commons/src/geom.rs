@@ -18,6 +18,17 @@ impl<T> Point<T> {
     pub fn y(&self) -> &T {
         &self.y
     }
+
+    pub fn tuple_ref(&self) -> (&T, &T) {
+        (&self.x, &self.y)
+    }
+
+    pub fn tuple_copy(&self) -> (T, T)
+    where
+        T: Copy
+    {
+        (self.x, self.y)
+    }
 }
 
 impl<T> Point<T>

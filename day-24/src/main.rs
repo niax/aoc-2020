@@ -66,7 +66,7 @@ fn main() {
         for dir in line {
             coord += dir.offset();
         }
-        let coord_tuple = (*coord.x(), *coord.y());
+        let coord_tuple = coord.tuple_copy();
         let current = match grid.at(&coord_tuple) {
             Some(a) => *a,
             None => false,
